@@ -1,0 +1,364 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --bg-main: #f9fafb;
+    --bg-surface: #ffffff;
+    --bg-surface-elevated: #f3f4f6;
+    --border-color: rgba(0, 0, 0, 0.11);
+    --border-color-strong: rgba(0, 0, 0, 0.22);
+    --text-main: #111827;
+    --text-secondary: #4b5563;
+    --text-muted: #6b7280;
+    --brand-red: #c8102e;
+    --brand-red-hover: #a50d25;
+    --brand-yellow: #f59e0b;
+    --brand-yellow-bright: #fbbf24;
+    --grid-line-color: rgba(0, 0, 0, 0.075);
+    --header-bg: rgba(255, 255, 255, 0.94);
+    --nav-bg: rgba(255, 255, 255, 0.96);
+    --card-bg: #ffffff;
+    --badge-bg: rgba(200, 16, 46, 0.08);
+
+    /* Ambient & Bubble System (Light mode) */
+    --ambient-glow: rgba(200, 16, 46, 0.08);
+    --bubble-red-primary: rgba(200, 16, 46, 0.12);
+    --bubble-red-secondary: rgba(220, 38, 38, 0.06);
+    --bubble-highlight: rgba(251, 191, 36, 0.12);
+    --bubble-rim: rgba(200, 16, 46, 0.15);
+  }
+
+  .dark {
+    --bg-main: #0a0a0d;
+    --bg-surface: #121216;
+    --bg-surface-elevated: #1a1a20;
+    --border-color: rgba(255, 255, 255, 0.1);
+    --border-color-strong: rgba(255, 255, 255, 0.22);
+    --text-main: #ffffff;
+    --text-secondary: #a1a1aa;
+    --text-muted: #71717a;
+    --brand-red: #d31435;
+    --brand-red-hover: #e02444;
+    --brand-yellow: #f59e0b;
+    --brand-yellow-bright: #fbbf24;
+    --grid-line-color: rgba(255, 255, 255, 0.085);
+    --header-bg: rgba(10, 10, 13, 0.94);
+    --nav-bg: rgba(10, 10, 13, 0.96);
+    --card-bg: #131318;
+    --badge-bg: rgba(211, 20, 53, 0.15);
+
+    /* Ambient & Bubble System (Dark mode) */
+    --ambient-glow: rgba(200, 16, 46, 0.22);
+    --bubble-red-primary: rgba(200, 16, 46, 0.22);
+    --bubble-red-secondary: rgba(180, 10, 30, 0.15);
+    --bubble-highlight: rgba(251, 191, 36, 0.2);
+    --bubble-rim: rgba(255, 255, 255, 0.16);
+  }
+
+  html, body {
+    -webkit-tap-highlight-color: transparent;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
+
+  h1, h2, h3, .font-heading {
+    font-family: 'Cabinet Grotesk', 'Plus Jakarta Sans', -apple-system, sans-serif;
+    letter-spacing: -0.02em;
+  }
+}
+
+/* Repeating geometric square grid faithfully recreating image_69fcd23d.png */
+.pannello-grid-pattern {
+  background-color: var(--bg-main);
+  background-image: 
+    linear-gradient(to right, var(--grid-line-color) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--grid-line-color) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+
+/* 
+ * Documented Stacking Context Architecture:
+ * - z-ambient: 0 (background animated bubbles & grid pattern)
+ * - z-content: 10 (main menu content, product cards, category image cards)
+ * - z-float-btn: 20-30 (quick back-to-top floating button)
+ * - z-nav: 40 (sticky header & category tabs wrapper)
+ * - z-drawer-backdrop: 60 (fullscreen semi-transparent dark backdrop)
+ * - z-drawer-panel: 70 (slide-over / floating three-dot menu drawer)
+ * - z-modal: 80 (review audit modal dialog)
+ */
+
+/* iOS Safari Safe Area Helpers with max() protection */
+.safe-top {
+  padding-top: max(env(safe-area-inset-top, 0px), 0px);
+}
+
+.safe-bottom {
+  padding-bottom: max(env(safe-area-inset-bottom, 0px), 0px);
+}
+
+.safe-left {
+  padding-left: max(env(safe-area-inset-left, 0px), 0px);
+}
+
+.safe-right {
+  padding-right: max(env(safe-area-inset-right, 0px), 0px);
+}
+
+.safe-pb-floating {
+  padding-bottom: calc(max(env(safe-area-inset-bottom, 0px), 0px) + 1.25rem);
+}
+
+/* Hide scrollbars for clean horizontal and vertical touch scroll with native momentum */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Touch manipulation optimization (eliminates 300ms tap delay on iOS Safari) */
+button, a, input, select {
+  touch-action: manipulation;
+}
+
+/* Custom focus ring */
+button:focus-visible, a:focus-visible, input:focus-visible {
+  outline: 2px solid var(--brand-yellow);
+  outline-offset: 2px;
+}
+
+/* GPU-accelerated Organic Floating Animations for PANNELLO Ambient Bubbles */
+@keyframes bubbleFloat1 {
+  0% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  33% {
+    transform: translate3d(18px, -28px, 0) scale(1.04);
+  }
+  66% {
+    transform: translate3d(-14px, -12px, 0) scale(0.97);
+  }
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+}
+
+@keyframes bubbleFloat2 {
+  0% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  40% {
+    transform: translate3d(-24px, 20px, 0) scale(1.06);
+  }
+  75% {
+    transform: translate3d(16px, -16px, 0) scale(0.96);
+  }
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+}
+
+@keyframes bubbleFloat3 {
+  0% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(14px, 22px, 0) scale(1.05);
+  }
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+}
+
+@keyframes bubbleFloatCrisp {
+  0% {
+    transform: translate3d(0, 0, 0) translateY(0);
+    opacity: 0.55;
+  }
+  50% {
+    transform: translate3d(8px, -18px, 0);
+    opacity: 0.85;
+  }
+  100% {
+    transform: translate3d(0, 0, 0) translateY(0);
+    opacity: 0.55;
+  }
+}
+
+@keyframes ambientPulseGlow {
+  0%, 100% {
+    opacity: 0.65;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.95;
+    transform: scale(1.06);
+  }
+}
+
+@keyframes logoEntrance {
+  0% {
+    opacity: 0;
+    transform: scale(0.94);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-bubble-1 {
+  animation: bubbleFloat1 20s ease-in-out infinite;
+  will-change: transform;
+}
+
+.animate-bubble-2 {
+  animation: bubbleFloat2 24s ease-in-out infinite;
+  will-change: transform;
+}
+
+.animate-bubble-3 {
+  animation: bubbleFloat3 18s ease-in-out infinite;
+  will-change: transform;
+}
+
+.animate-bubble-crisp {
+  animation: bubbleFloatCrisp 12s ease-in-out infinite;
+  will-change: transform, opacity;
+}
+
+.animate-glow-pulse {
+  animation: ambientPulseGlow 8s ease-in-out infinite;
+  will-change: transform, opacity;
+}
+
+.animate-logo-entrance {
+  animation: logoEntrance 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Smart Auto-Hide Navigation Wrapper (Direction-aware scroll) */
+.smart-nav-wrapper {
+  transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.22s ease-out;
+  will-change: transform, opacity;
+}
+
+/* Product Card Price Container Highlight Interaction */
+.product-card-price-container {
+  transition: transform 0.18s cubic-bezier(0.16, 1, 0.3, 1),
+              background-color 0.18s ease,
+              border-color 0.18s ease,
+              color 0.15s ease,
+              box-shadow 0.18s cubic-bezier(0.16, 1, 0.3, 1),
+              filter 0.18s ease;
+  transition-property: transform, background-color, border-color, color, box-shadow, filter;
+  will-change: transform, box-shadow;
+}
+
+.product-card-price-container:hover,
+.group:hover .product-card-price-container {
+  transform: scale(1.05);
+  font-weight: 900;
+  color: #ffffff !important;
+  background-color: var(--brand-red) !important;
+  border-color: var(--brand-yellow) !important;
+  box-shadow: 0 4px 14px rgba(200, 16, 46, 0.35);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
+}
+
+.product-card-price-container:hover span:last-child,
+.group:hover .product-card-price-container span:last-child {
+  color: var(--brand-yellow-bright) !important;
+}
+
+/* Quick, tactile flash on tap/press for immediate visual feedback */
+.product-card-price-container:active,
+.group:active .product-card-price-container {
+  transition: transform 0.06s cubic-bezier(0.2, 0, 0, 1),
+              background-color 0.06s ease,
+              border-color 0.06s ease,
+              box-shadow 0.06s ease,
+              filter 0.06s ease;
+  transform: scale(1.12);
+  font-weight: 900;
+  color: #ffffff !important;
+  background-color: var(--brand-red) !important;
+  border-color: #fde047 !important;
+  box-shadow: 0 0 0 2.5px rgba(251, 191, 36, 0.55), 0 0 22px rgba(200, 16, 46, 0.75) !important;
+  filter: brightness(1.12);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.45);
+}
+
+.product-card-price-container:active span:last-child,
+.group:active .product-card-price-container span:last-child {
+  color: #fef08a !important;
+}
+
+/* Reduced Motion Override */
+@media (prefers-reduced-motion: reduce) {
+  .animate-bubble-1,
+  .animate-bubble-2,
+  .animate-bubble-3,
+  .animate-bubble-crisp,
+  .animate-glow-pulse,
+  .animate-logo-entrance,
+  .smart-nav-wrapper,
+  .shimmer-skeleton::after {
+    animation: none !important;
+    transition: none !important;
+    transform: none !important;
+  }
+}
+
+/* Shimmer Skeleton Wave Animation (Zero-shift placeholder system) */
+@keyframes shimmerWave {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.shimmer-skeleton {
+  position: relative;
+  overflow: hidden;
+  background-color: var(--bg-surface-elevated);
+}
+
+.shimmer-skeleton::after {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  transform: translateX(-100%);
+  background-image: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(200, 16, 46, 0.04) 20%,
+    rgba(255, 255, 255, 0.22) 50%,
+    rgba(200, 16, 46, 0.04) 80%,
+    transparent 100%
+  );
+  animation: shimmerWave 1.8s infinite ease-in-out;
+  content: '';
+  pointer-events: none;
+}
+
+.dark .shimmer-skeleton::after {
+  background-image: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(200, 16, 46, 0.08) 20%,
+    rgba(255, 255, 255, 0.09) 50%,
+    rgba(200, 16, 46, 0.08) 80%,
+    transparent 100%
+  );
+}

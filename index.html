@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="fr" class="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover" />
+    <title>PANNELLO — Taste The Best | Menu Numérique</title>
+    <meta name="description" content="Menu numérique officiel du restaurant PANNELLO. Découvrez nos pizzas sauce rouge et blanche, smash burgers, tacos, sandwiches, tombik, calzon, boissons fraîches et crêpes." />
+    <meta name="keywords" content="PANNELLO, Menu Digital, Restaurant, Pizza, Smash Burger, Tacos, Tombik, Algerie, Fast Food" />
+    <meta name="author" content="PANNELLO" />
+    <link rel="icon" type="image/png" href="/assets/pannello_logo_cropped.png" />
+    <link rel="apple-touch-icon" href="/assets/pannello_logo_cropped.png" />
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:title" content="PANNELLO — Taste The Best | Menu Numérique" />
+    <meta property="og:description" content="Consultez la carte complète et les prix officiels en direct sur votre mobile." />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="fr_FR" />
+    <meta property="og:image" content="/assets/pannello_logo_hero.png" />
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="PANNELLO — Taste The Best | Menu Numérique" />
+    <meta name="twitter:description" content="Consultez la carte complète et les prix officiels en direct sur votre mobile." />
+    <meta name="twitter:image" content="/assets/pannello_logo_hero.png" />
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Cabinet+Grotesk:wght@700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+
+    <!-- Schema.org JSON-LD -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Restaurant",
+      "name": "PANNELLO",
+      "slogan": "TASTE THE BEST",
+      "servesCuisine": ["Pizza", "Burgers", "Tacos", "Fast Food"],
+      "priceRange": "$$",
+      "currenciesAccepted": "DZD",
+      "menu": "https://pannello.menu",
+      "hasMenu": {
+        "@type": "Menu",
+        "name": "Carte PANNELLO",
+        "hasMenuSection": [
+          { "@type": "MenuSection", "name": "Smash Burger" },
+          { "@type": "MenuSection", "name": "Pocket" },
+          { "@type": "MenuSection", "name": "Fries" },
+          { "@type": "MenuSection", "name": "Drinks / Boissons" },
+          { "@type": "MenuSection", "name": "Sweets" },
+          { "@type": "MenuSection", "name": "Pizza Sauce Rouge" },
+          { "@type": "MenuSection", "name": "Pizza Sauce Blanche" },
+          { "@type": "MenuSection", "name": "Tacos" },
+          { "@type": "MenuSection", "name": "Sandwiches" },
+          { "@type": "MenuSection", "name": "Tombik" },
+          { "@type": "MenuSection", "name": "Calzon" }
+        ]
+      }
+    }
+    </script>
+  </head>
+  <body class="min-h-screen bg-[var(--bg-main)] text-[var(--text-main)] transition-colors duration-200 antialiased selection:bg-[#C8102E] selection:text-white">
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

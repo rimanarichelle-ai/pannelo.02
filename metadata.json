@@ -1,0 +1,6 @@
+{
+  "name": "PANNELLO — Taste The Best | Digital Menu",
+  "description": "Official premium digital menu for PANNELLO restaurant. Explore pizzas, smash burgers, tacos, tombik, calzone, sandwiches, drinks, and sweets.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
