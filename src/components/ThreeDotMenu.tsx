@@ -12,6 +12,7 @@ import {
   ChevronRight,
   Check,
   UtensilsCrossed,
+  Sparkles,
 } from 'lucide-react';
 import type { MenuCategory } from '@/lib/menu-data';
 import type { Language, Translations } from '@/lib/translations';
@@ -157,11 +158,9 @@ export function ThreeDotMenu({
   }, [isOpen, onOpenChange]);
 
   const toggleMenu = () => {
-    setIsOpen((prev) => {
-      const next = !prev;
-      onOpenChange?.(next);
-      return next;
-    });
+    const next = !isOpen;
+    setIsOpen(next);
+    onOpenChange?.(next);
   };
 
   const handleClose = () => {
@@ -210,17 +209,17 @@ export function ThreeDotMenu({
       */}
       {mounted && isOpen && createPortal(
         <div
-          className="fixed inset-0 z-[60] flex items-stretch md:items-start justify-start"
+          className="fixed inset-0 z-[1100] flex items-stretch md:items-start justify-start"
           role="presentation"
         >
           {/* Backdrop: Dark translucent backdrop separating drawer from underlying page */}
           <div
-            className="fixed inset-0 z-[60] bg-black/70 backdrop-blur-xs transition-opacity duration-200"
+            className="fixed inset-0 z-[1100] bg-black/70 backdrop-blur-xs transition-opacity duration-200"
             aria-hidden="true"
             onClick={handleClose}
           />
 
-          {/* Drawer / Modal Container (z-[70])
+          {/* Drawer / Modal Container (z-[1200])
               - Mobile (<768px): Anchored full-height slide-over drawer (100dvh) with safe-area insets
               - Tablet / Desktop (>=768px): Proportioned floating card (max-w-[380px], max-h-[min(90vh,calc(100dvh-2.5rem))])
           */}
@@ -230,7 +229,7 @@ export function ThreeDotMenu({
             aria-modal="true"
             aria-label={t.ui.threeDotMenuAria}
             onClick={(e) => e.stopPropagation()}
-            className="relative z-[70] w-full max-w-[340px] xs:max-w-[360px] md:max-w-[380px] h-[100dvh] md:h-auto md:max-h-[min(90vh,calc(100dvh-2.5rem))] md:top-4 md:left-6 md:my-0 flex flex-col bg-[var(--bg-surface)] text-[var(--text-main)] border-r md:border border-[var(--border-color)] shadow-2xl shadow-black/80 overflow-hidden md:rounded-2xl animate-in slide-in-from-left duration-200"
+            className="relative z-[1200] w-full max-w-[340px] xs:max-w-[360px] md:max-w-[380px] h-[100dvh] md:h-auto md:max-h-[min(90vh,calc(100dvh-2.5rem))] md:top-4 md:left-6 md:my-0 flex flex-col bg-[var(--bg-surface)] text-[var(--text-main)] border-r md:border border-[var(--border-color)] shadow-2xl shadow-black/80 overflow-hidden md:rounded-2xl animate-in slide-in-from-left duration-200"
           >
             {/* Top Brand Accent Hairline (PANNELLO Red & Gold Gradient) */}
             <div className="h-1.5 w-full bg-gradient-to-r from-[#C8102E] via-[#FBBF24] to-[#C8102E] shrink-0" />

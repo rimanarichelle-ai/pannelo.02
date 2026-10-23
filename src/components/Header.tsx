@@ -55,11 +55,11 @@ export function Header({
           />
         </div>
 
-        {/* 2. CENTER: Prominent PANNELLO Logo (Mathematically Centered, clamp(160px, 46vw, 240px) on mobile) */}
+        {/* 2. CENTER: Prominent PANNELLO Logo with One-Time Intro Entrance & 220ms Instant Theme Crossfade */}
         <div className="flex items-center justify-center text-center px-1">
           <a
             href="#"
-            className="group relative flex flex-col items-center justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-yellow)] rounded-lg px-1 py-0.5 animate-logo-entrance"
+            className="group relative flex flex-col items-center justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-yellow)] rounded-lg px-1 py-0.5"
             aria-label="PANNELLO - Taste The Best"
           >
             {/* Ambient Red Glow Layer directly behind the centerpiece logo */}
@@ -69,17 +69,32 @@ export function Header({
             />
 
             {/* High-Resolution Cropped Logo (Retina-optimized, zero empty margins, scaled safely for 320px–1440px) */}
-            <div className="relative w-[clamp(160px,46vw,240px)] sm:w-[250px] md:w-[270px] aspect-[290/74] flex items-center justify-center">
-              <Image
+            <div className="header-logo-container relative w-[clamp(160px,46vw,240px)] sm:w-[250px] md:w-[270px] aspect-[290/74] flex items-center justify-center">
+              {/* 1. Light Mode Red Logo — Preloaded & permanently mounted in DOM */}
+              <img
+                src="/assets/pannello_logo_red.png"
+                alt="PANNELLO - TASTE THE BEST"
+                width={291}
+                height={74}
+                loading="eager"
+                decoding="sync"
+                fetchPriority="high"
+                className={`header-logo-image header-logo-light absolute inset-0 w-full h-full object-contain pointer-events-none drop-shadow-[0_1px_3px_rgba(0,0,0,0.12)] group-hover:scale-[1.02] transition-transform duration-150 ${
+                  theme === 'light' ? 'opacity-100' : 'opacity-0'
+                }`}
+              />
+
+              {/* 2. Dark Mode White Logo — Preloaded & permanently mounted in DOM */}
+              <img
                 src="/assets/pannello_logo_hero.png"
                 alt="PANNELLO - TASTE THE BEST"
-                fill
-                priority
-                sizes="(max-width: 640px) 240px, (max-width: 1024px) 250px, 270px"
-                className={`object-contain transition-transform duration-200 group-hover:scale-[1.02] ${
-                  theme === 'light'
-                    ? 'drop-shadow-[0_2px_5px_rgba(0,0,0,0.5)]'
-                    : 'drop-shadow-[0_2px_10px_rgba(200,16,46,0.45)]'
+                width={580}
+                height={148}
+                loading="eager"
+                decoding="sync"
+                fetchPriority="high"
+                className={`header-logo-image header-logo-dark absolute inset-0 w-full h-full object-contain pointer-events-none drop-shadow-[0_2px_10px_rgba(200,16,46,0.45)] group-hover:scale-[1.02] transition-transform duration-150 ${
+                  theme === 'dark' ? 'opacity-100' : 'opacity-0'
                 }`}
               />
             </div>

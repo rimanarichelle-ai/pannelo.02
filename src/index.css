@@ -15,8 +15,8 @@
     --brand-yellow: #f59e0b;
     --brand-yellow-bright: #fbbf24;
     --grid-line-color: rgba(0, 0, 0, 0.075);
-    --header-bg: rgba(255, 255, 255, 0.94);
-    --nav-bg: rgba(255, 255, 255, 0.96);
+    --header-bg: rgba(255, 255, 255, 0.98);
+    --nav-bg: rgba(255, 255, 255, 0.98);
     --card-bg: #ffffff;
     --badge-bg: rgba(200, 16, 46, 0.08);
 
@@ -42,8 +42,8 @@
     --brand-yellow: #f59e0b;
     --brand-yellow-bright: #fbbf24;
     --grid-line-color: rgba(255, 255, 255, 0.085);
-    --header-bg: rgba(10, 10, 13, 0.94);
-    --nav-bg: rgba(10, 10, 13, 0.96);
+    --header-bg: rgba(10, 10, 13, 0.98);
+    --nav-bg: rgba(10, 10, 13, 0.98);
     --card-bg: #131318;
     --badge-bg: rgba(211, 20, 53, 0.15);
 
@@ -84,11 +84,11 @@
  * Documented Stacking Context Architecture:
  * - z-ambient: 0 (background animated bubbles & grid pattern)
  * - z-content: 10 (main menu content, product cards, category image cards)
- * - z-float-btn: 20-30 (quick back-to-top floating button)
- * - z-nav: 40 (sticky header & category tabs wrapper)
- * - z-drawer-backdrop: 60 (fullscreen semi-transparent dark backdrop)
- * - z-drawer-panel: 70 (slide-over / floating three-dot menu drawer)
- * - z-modal: 80 (review audit modal dialog)
+ * - z-float-btn: 500 (quick back-to-top floating button)
+ * - z-fixed-header: 1000 (permanently fixed header & category tabs container)
+ * - z-drawer-backdrop: 1100 (fullscreen semi-transparent dark backdrop)
+ * - z-drawer-panel: 1200 (slide-over / floating three-dot menu drawer)
+ * - z-modal: 1300 (review audit modal dialog)
  */
 
 /* iOS Safari Safe Area Helpers with max() protection */
@@ -203,15 +203,53 @@ button:focus-visible, a:focus-visible, input:focus-visible {
   }
 }
 
-@keyframes logoEntrance {
+/* ==========================================================================
+   PANNELLO HEADER LOGO — ENTRANCE ANIMATION & INSTANT THEME CROSSFADE
+   ========================================================================== */
+
+@keyframes headerLogoEntrance {
   0% {
     opacity: 0;
-    transform: scale(0.94);
+    transform: translateY(12px) scale(0.92);
   }
   100% {
     opacity: 1;
-    transform: scale(1);
+    transform: translateY(0) scale(1);
   }
+}
+
+/* One-time entrance animation applied on initial page load (650-800ms) */
+.header-logo-container {
+  animation: headerLogoEntrance 750ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  will-change: transform, opacity;
+  transform-origin: center center;
+}
+
+/* Fast, smooth crossfade between light & dark logos (180-250ms) */
+.header-logo-image {
+  transition: opacity 220ms cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: opacity;
+  backface-visibility: hidden;
+}
+
+/* Document theme-driven visibility ensuring 0ms delay and no flicker */
+html.dark .header-logo-light {
+  opacity: 0 !important;
+  pointer-events: none;
+}
+html.dark .header-logo-dark {
+  opacity: 1 !important;
+  pointer-events: auto;
+}
+html.light .header-logo-light,
+html:not(.dark) .header-logo-light {
+  opacity: 1 !important;
+  pointer-events: auto;
+}
+html.light .header-logo-dark,
+html:not(.dark) .header-logo-dark {
+  opacity: 0 !important;
+  pointer-events: none;
 }
 
 .animate-bubble-1 {
@@ -239,14 +277,26 @@ button:focus-visible, a:focus-visible, input:focus-visible {
   will-change: transform, opacity;
 }
 
-.animate-logo-entrance {
-  animation: logoEntrance 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-
-/* Smart Auto-Hide Navigation Wrapper (Direction-aware scroll) */
-.smart-nav-wrapper {
-  transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.22s ease-out;
-  will-change: transform, opacity;
+/* Accessibility: Respect prefers-reduced-motion globally */
+@media (prefers-reduced-motion: reduce) {
+  .header-logo-container {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+  .header-logo-image {
+    transition: none !important;
+  }
+  .animate-bubble-1,
+  .animate-bubble-2,
+  .animate-bubble-3,
+  .animate-bubble-crisp,
+  .animate-glow-pulse,
+  .shimmer-skeleton::after {
+    animation: none !important;
+    transition: none !important;
+    transform: none !important;
+  }
 }
 
 /* Product Card Price Container Highlight Interaction */
@@ -300,22 +350,6 @@ button:focus-visible, a:focus-visible, input:focus-visible {
   color: #fef08a !important;
 }
 
-/* Reduced Motion Override */
-@media (prefers-reduced-motion: reduce) {
-  .animate-bubble-1,
-  .animate-bubble-2,
-  .animate-bubble-3,
-  .animate-bubble-crisp,
-  .animate-glow-pulse,
-  .animate-logo-entrance,
-  .smart-nav-wrapper,
-  .shimmer-skeleton::after {
-    animation: none !important;
-    transition: none !important;
-    transform: none !important;
-  }
-}
-
 /* Shimmer Skeleton Wave Animation (Zero-shift placeholder system) */
 @keyframes shimmerWave {
   0% {
@@ -362,3 +396,4 @@ button:focus-visible, a:focus-visible, input:focus-visible {
     transparent 100%
   );
 }
+

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useRef } from 'react';
+import React, { useState, useEffect, useLayoutEffect, useMemo, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { useTheme } from '@/hooks/use-theme';
 import { useLanguage } from '@/hooks/use-language';
@@ -10,7 +10,6 @@ import { ProductCard } from '@/components/ProductCard';
 import { AmbientBackground } from '@/components/AmbientBackground';
 import { MENU_CATEGORIES, MENU_ITEMS } from '@/lib/menu-data';
 import Image from '@/components/Image';
-import { useScrollDirection } from '@/hooks/use-scroll-direction';
 import { ArrowUp, Utensils, AlertCircle, FileText, Download } from 'lucide-react';
 import { MenuSectionSkeleton } from '@/components/Skeletons';
 
@@ -21,16 +20,40 @@ export default function App() {
   const [searchQuery, setSearchQuery] = useState('');
   const [showReviewModal, setShowReviewModal] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isProgrammaticScrolling, setIsProgrammaticScrolling] = useState(false);
   const isUserClickingRef = useRef(false);
 
-  // Direction-aware smart navigation hook (synchronized auto-hide across Desktop, Tablet, and Mobile)
-  const { isVisible: isNavVisible, setIsVisible: setNavVisible } = useScrollDirection({
-    thresholdDown: 14,
-    thresholdUp: 7,
-    topThreshold: 30,
-    disabled: isProgrammaticScrolling || showReviewModal || isMenuOpen,
-  });
+
+  // Dynamic header height tracking for the fixed header spacer & scroll offset
+  const headerRef = useRef<HTMLDivElement>(null);
+  const [headerHeight, setHeaderHeight] = useState<number>(112); // Fallback: mobile ~110px, desktop ~126px
+
+  // Keep spacer height mathematically synchronized with fixed header
+  useLayoutEffect(() => {
+    const updateHeaderHeight = () => {
+      if (headerRef.current) {
+        const height = headerRef.current.getBoundingClientRect().height;
+        if (height > 0) {
+          setHeaderHeight(Math.round(height));
+        }
+      }
+    };
+
+    updateHeaderHeight();
+
+    let resizeObserver: ResizeObserver | null = null;
+    if (typeof ResizeObserver !== 'undefined' && headerRef.current) {
+      resizeObserver = new ResizeObserver(() => {
+        updateHeaderHeight();
+      });
+      resizeObserver.observe(headerRef.current);
+    }
+
+    window.addEventListener('resize', updateHeaderHeight);
+    return () => {
+      if (resizeObserver) resizeObserver.disconnect();
+      window.removeEventListener('resize', updateHeaderHeight);
+    };
+  }, [mounted]);
 
   // Handle iOS scroll lock and Escape key for Review Audit Modal
   useEffect(() => {
@@ -111,18 +134,20 @@ export default function App() {
     const observer = new IntersectionObserver(
       (entries) => {
         if (isUserClickingRef.current) return;
-        // Find the topmost visible section
+        // Find the topmost visible section relative to the fixed header bottom
         const visibleEntries = entries.filter((e) => e.isIntersecting);
         if (visibleEntries.length > 0) {
           visibleEntries.sort(
-            (a, b) => Math.abs(a.boundingClientRect.top - 130) - Math.abs(b.boundingClientRect.top - 130)
+            (a, b) =>
+              Math.abs(a.boundingClientRect.top - headerHeight) -
+              Math.abs(b.boundingClientRect.top - headerHeight)
           );
           const activeSectionId = visibleEntries[0].target.id.replace('section-', '');
           setActiveCategoryId(activeSectionId);
         }
       },
       {
-        rootMargin: '-130px 0px -40% 0px',
+        rootMargin: `-${headerHeight}px 0px -40% 0px`,
         threshold: [0, 0.25, 0.5],
       }
     );
@@ -133,75 +158,90 @@ export default function App() {
       sectionElements.forEach((el) => observer.unobserve(el));
       observer.disconnect();
     };
-  }, [searchQuery]);
+  }, [searchQuery, headerHeight]);
 
-  // Handle category tab click with smooth scroll
+  // Handle category tab click with smooth scroll, accounting for permanently fixed header
   const handleSelectCategory = (categoryId: string) => {
     setActiveCategoryId(categoryId);
     setSearchQuery(''); // Clear search to show full section
     isUserClickingRef.current = true;
-    setIsProgrammaticScrolling(true);
-    setNavVisible(true);
 
     const targetEl = document.getElementById(`section-${categoryId}`);
     if (targetEl) {
-      // Calculate scroll position accounting for sticky header and nav tabs (~135px)
-      const yOffset = -135;
-      const y = targetEl.getBoundingClientRect().top + window.pageYOffset + yOffset;
-      window.scrollTo({ top: y, behavior: 'smooth' });
+      // Calculate scroll position accounting for the exact height of the fixed header
+      const y = targetEl.getBoundingClientRect().top + window.pageYOffset - headerHeight - 8;
+      window.scrollTo({ top: Math.max(0, y), behavior: 'smooth' });
     }
 
     setTimeout(() => {
       isUserClickingRef.current = false;
-      setIsProgrammaticScrolling(false);
-    }, 800);
+    }, 600);
   };
 
   const scrollToTop = () => {
-    setIsProgrammaticScrolling(true);
-    setNavVisible(true);
     window.scrollTo({ top: 0, behavior: 'smooth' });
-    setTimeout(() => {
-      setIsProgrammaticScrolling(false);
-    }, 800);
   };
 
   return (
-    <div className="relative min-h-[100dvh] flex flex-col pannello-grid-pattern selection:bg-[#C8102E] selection:text-white overflow-x-hidden">
-      {/* Subtle Red Floating Bubbles & Ambient Glow Layer (Background behind content) */}
+    <div className="relative min-h-[100dvh] flex flex-col pannello-grid-pattern selection:bg-[#C8102E] selection:text-white overflow-x-clip">
+
+      {/* 1. Subtle Red Floating Bubbles & Ambient Glow Layer (Background behind content) */}
       <AmbientBackground />
 
-      {/* Main Content Area (Elevated above ambient glow layer) */}
-      <div className="relative z-10 flex flex-col min-h-[100dvh]">
-        {/* Coordinated Smart Auto-Hide Navigation (Header + Category Tabs synchronized across all screen sizes) */}
-        <div
-          className={`sticky top-0 z-40 w-full smart-nav-wrapper ${
-            isNavVisible
-              ? 'translate-y-0 opacity-100 pointer-events-auto'
-              : '-translate-y-full opacity-0 pointer-events-none'
-          }`}
-        >
-          <Header
-            theme={theme}
-            toggleTheme={toggleTheme}
-            language={language}
-            setLanguage={setLanguage}
-            t={t}
-            mounted={mounted}
-            categories={MENU_CATEGORIES}
-            activeCategoryId={activeCategoryId}
-            onSelectCategory={handleSelectCategory}
-            onMenuOpenChange={setIsMenuOpen}
-          />
-          <CategoryNavigation
-            categories={MENU_CATEGORIES}
-            activeCategoryId={activeCategoryId}
-            onSelectCategory={handleSelectCategory}
-            t={t}
-          />
-        </div>
+      {/* 2. PERMANENTLY FIXED HEADER & CATEGORY NAVIGATION CONTAINER
+          - Strict position: fixed across all devices (Desktop, Tablet, Mobile, iPhone)
+          - z-index: 1000
+          - Never moves, slides away, fades out, or collapses
+          - Opaque background with backdrop blur so content scrolling behind never bleeds through
+      */}
+      <div
+        ref={headerRef}
+        id="pannello-fixed-header-container"
+        className="fixed top-0 left-0 right-0 w-full z-[1000] bg-[var(--header-bg)] backdrop-blur-md shadow-xs"
+        style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          width: '100%',
+          zIndex: 1000,
+        }}
+      >
+        <Header
+          theme={theme}
+          toggleTheme={toggleTheme}
+          language={language}
+          setLanguage={setLanguage}
+          t={t}
+          mounted={mounted}
+          categories={MENU_CATEGORIES}
+          activeCategoryId={activeCategoryId}
+          onSelectCategory={handleSelectCategory}
+          onMenuOpenChange={setIsMenuOpen}
+        />
+        <CategoryNavigation
+          categories={MENU_CATEGORIES}
+          activeCategoryId={activeCategoryId}
+          onSelectCategory={handleSelectCategory}
+          t={t}
+        />
+      </div>
 
-        {/* 3. Search Bar */}
+      {/* 3. Dedicated Layout Spacer:
+          Because position: fixed removes the header from document flow, this spacer
+          guarantees the search bar and first category content start immediately below the header
+          with 0px covered and 0px unwanted blank space.
+      */}
+      <div
+        id="pannello-header-spacer"
+        style={{ height: `${headerHeight}px` }}
+        className="w-full shrink-0"
+        aria-hidden="true"
+      />
+
+      {/* 4. Main Page Content (Scrolls normally underneath the permanently fixed header) */}
+      <div className="relative z-10 flex flex-col flex-1">
+        {/* Search Bar */}
         <div className="w-full bg-[var(--bg-main)]/85 backdrop-blur-md border-b border-[var(--border-color)]">
           <SearchBar
             searchQuery={searchQuery}
@@ -212,7 +252,7 @@ export default function App() {
           />
         </div>
 
-        {/* 4. Main Menu Body */}
+        {/* Main Menu Body */}
         <main className="flex-1 max-w-6xl w-full mx-auto px-3 sm:px-6 py-4">
           {!mounted ? (
             /* Shimmer Skeleton Placeholder while initial theme and data hydrate */
@@ -285,17 +325,17 @@ export default function App() {
           )}
         </main>
 
-        {/* 5. Mobile Quick Scroll To Top Floating Button (with iPhone Safe Area Insets) */}
+        {/* Mobile Quick Scroll To Top Floating Button (with iPhone Safe Area Insets) */}
         <button
           type="button"
           onClick={scrollToTop}
           aria-label={t.ui.backToTop}
-          className="fixed bottom-[calc(1.25rem+env(safe-area-inset-bottom,0px))] right-5 z-20 flex items-center justify-center w-12 h-12 rounded-full bg-[#C8102E] text-white shadow-xl hover:bg-[#a50d25] active:scale-90 transition-all cursor-pointer focus:outline-none border border-white/20"
+          className="fixed bottom-[calc(1.25rem+env(safe-area-inset-bottom,0px))] right-5 z-[500] flex items-center justify-center w-12 h-12 rounded-full bg-[#C8102E] text-white shadow-xl hover:bg-[#a50d25] active:scale-90 transition-all cursor-pointer focus:outline-none border border-white/20"
         >
           <ArrowUp className="w-5 h-5" />
         </button>
 
-        {/* 6. Footer with Brand Identity, Review Doc Access & iPhone Safe Area */}
+        {/* Footer with Brand Identity, Review Doc Access & iPhone Safe Area */}
         <footer className="mt-14 border-t-2 border-[var(--border-color)] bg-[var(--bg-surface)] py-10 px-4 text-center transition-colors safe-bottom">
           <div className="max-w-4xl mx-auto flex flex-col items-center justify-center space-y-4">
             <div className="relative w-40 h-11">
@@ -341,12 +381,10 @@ export default function App() {
           </div>
         </footer>
 
-
-
-        {/* 8. Data Audit & Review Modal (Portaled directly to document.body at z-[80]) */}
+        {/* Data Audit & Review Modal (Portaled directly to document.body at z-[1300]) */}
         {showReviewModal && typeof document !== 'undefined' && createPortal(
           <div
-            className="fixed inset-0 z-[80] flex items-center justify-center p-3 sm:p-4 bg-black/75 backdrop-blur-xs safe-top safe-bottom"
+            className="fixed inset-0 z-[1300] flex items-center justify-center p-3 sm:p-4 bg-black/75 backdrop-blur-xs safe-top safe-bottom"
             role="dialog"
             aria-modal="true"
             aria-label={t.ui.auditModalTitle}

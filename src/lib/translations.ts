@@ -88,6 +88,8 @@ export interface Translations {
     categoriesMenuTitle: string;
     socialMenuTitle: string;
     locationMenuTitle: string;
+    skipIntro: string;
+    replayIntro: string;
   };
 }
 
@@ -234,6 +236,8 @@ export const TRANSLATIONS: Record<Language, Translations> = {
       categoriesMenuTitle: 'Catégories du Menu',
       socialMenuTitle: 'Réseaux Sociaux',
       locationMenuTitle: 'Notre Restaurant',
+      skipIntro: 'Passer',
+      replayIntro: 'Revoir l’intro',
     },
   },
   en: {
@@ -378,6 +382,8 @@ export const TRANSLATIONS: Record<Language, Translations> = {
       categoriesMenuTitle: 'Menu Categories',
       socialMenuTitle: 'Social Media',
       locationMenuTitle: 'Our Restaurant',
+      skipIntro: 'Skip',
+      replayIntro: 'Replay Intro',
     },
   },
 };
